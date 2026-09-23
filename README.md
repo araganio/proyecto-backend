@@ -14,7 +14,8 @@ npm install
 1. Instalar PostgreSQL 17 (usuario `postgres`, puerto `5432`) y DBeaver.
 2. En DBeaver, conexión a `postgres` y ejecutar: `CREATE DATABASE bd_proyecto;`
 3. Nueva conexión a `bd_proyecto` y ejecutar el script `database/schema.sql`
-   (crea las tablas `roles`, `usuarios`, `proyectos`, `usuarios_proyectos` y datos de prueba).
+   (crea las 6 tablas: `roles`, `usuarios`, `proyectos`, `usuarios_proyectos`, `permisos`, `roles_permisos`).
+   Ejecutar bloque por bloque, en orden: una tabla no se puede crear antes que la que referencia.
 
 ## Configuración
 Copia `.env.example` a `.env` y ajusta los valores (puerto, credenciales de PostgreSQL).
@@ -49,26 +50,33 @@ Headers → `x-api-key: clave-secreta-123`, Body (raw, JSON):
 
 ## Modelo de datos
 ```
-roles ──< usuarios >── usuarios_proyectos ──< proyectos
-            │  └── administrador_id → usuarios (auto-relación)
-            └── proyectos.administrador_id → usuarios
+permisos >── roles_permisos ──< roles ──< usuarios >── usuarios_proyectos ──< proyectos
+                                            │  └── administrador_id → usuarios (autorreferenciada)
+                                            └── proyectos.administrador_id → usuarios
 ```
-- `roles`: administrador, usuario
+- `roles`: Administrador, Usuario
+- `permisos`: crear, visualizar, actualizar, eliminar
+- `roles_permisos`: Administrador tiene los 4 permisos; Usuario solo visualizar
 - `usuarios`: pertenece a un rol y (opcionalmente) a un administrador
 - `proyectos`: pertenece a un administrador
 - `usuarios_proyectos`: relación muchos a muchos entre usuarios y proyectos
 
+**Reglas de borrado (ON DELETE):**
+- `usuarios.administrador_id` → `SET NULL`: al eliminar un administrador, sus usuarios
+  NO se borran, solo quedan sin administrador.
+- `proyectos.administrador_id` → `CASCADE`: al eliminar un administrador, sus proyectos sí se eliminan.
+
 ## Estructura
 ```
 src/
-├── config/        → variables de entorno y conexión a PostgreSQL (Sequelize)
+├── config/        → dotenv.js (variables de entorno) y db.js (instancia de Sequelize)
 ├── controllers/   → reciben la petición y responden
 ├── services/      → lógica de negocio
-├── models/        → modelos Sequelize (roles, usuarios, proyectos, usuarios_proyectos)
+├── models/        → un modelo por tabla + asociaciones.js (relaciones)
 ├── routes/        → definen las rutas
 ├── middlewares/   → funciones que se ejecutan antes del controlador
 ├── app.js         → configuración de Express
-└── server.js      → conecta la BD y enciende el servidor
+└── server.js      → authenticate() + sync() y enciende el servidor
 database/
 └── schema.sql     → script SQL de creación de tablas
 ```

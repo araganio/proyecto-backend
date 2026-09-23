@@ -2,7 +2,7 @@
 // Relación muchos a muchos: un usuario participa en varios proyectos
 // y un proyecto tiene varios usuarios.
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database');
+const sequelize = require('../config/db');
 
 const UsuarioProyecto = sequelize.define('UsuarioProyecto', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },

@@ -1,14 +1,25 @@
-// server.js: punto de entrada. Conecta la base de datos y enciende el servidor.
+// server.js: punto de entrada del backend.
+// 1) prueba la conexión con PostgreSQL, 2) sincroniza los modelos, 3) enciende Express.
 const app = require('./app');
-const { port } = require('./config/dotenv');
-const { conectarDB } = require('./config/database');
+const sequelize = require('./config/db');
+const { port, db } = require('./config/dotenv');
+require('./models/asociaciones'); // carga los modelos y sus relaciones
 
-const iniciar = async () => {
-  await conectarDB(); // primero la base de datos
+sequelize.authenticate()
+  .then(() => {
+    console.log(`Conexión exitosa con PostgreSQL (base de datos: ${db.name})`);
 
-  app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+    // sync() sincroniza los modelos con la base de datos.
+    // Sin alter ni force: no modifica ni recrea las tablas existentes.
+    return sequelize.sync();
+  })
+  .then(() => {
+    console.log('Modelos sincronizados correctamente');
+
+    app.listen(port, () => {
+      console.log(`Servidor corriendo en http://localhost:${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error al conectar con la base de datos:', error.message);
   });
-};
-
-iniciar();

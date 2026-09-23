@@ -2,7 +2,7 @@
 // El controlador llama al servicio, y el servicio usa los modelos (Sequelize)
 // para hablar con PostgreSQL.
 const bcrypt = require('bcryptjs');
-const { Usuario, Rol } = require('../models');
+const { Usuario, Rol } = require('../models/asociaciones');
 
 // Cada consulta incluye el rol para que la respuesta sea más útil
 const incluirRol = { include: [{ model: Rol, as: 'rol', attributes: ['id', 'nombre'] }] };
