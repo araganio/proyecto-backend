@@ -6,6 +6,7 @@
 //   401 Unauthorized → no envió token o el token no es válido / está vencido
 //   403 Forbidden    → el token es válido pero al usuario le falta el permiso
 const { verificarToken } = require('../services/auth.service');
+const { PERMISOS } = require('../utils/constants');
 
 const auth = (req, res, next) => {
   const cabecera = req.header('Authorization');
@@ -26,10 +27,12 @@ const auth = (req, res, next) => {
 };
 
 // Middleware que además exige un permiso concreto.
-// Se usa así:  router.post('/', auth, requierePermiso('crear'), controller.crear)
-const requierePermiso = (permiso) => (req, res, next) => {
-  if (!req.usuario || !req.usuario.permisos.includes(permiso)) {
-    return res.status(403).json({ message: `No tienes el permiso "${permiso}"` });
+// El token lleva los permisos como ids (los de la tabla "permisos").
+// Se usa así:  router.post('/', auth, requierePermiso(PERMISOS.CREAR), controller.crear)
+const requierePermiso = (permisoId) => (req, res, next) => {
+  if (!req.usuario || !req.usuario.permisos.includes(permisoId)) {
+    const nombre = Object.keys(PERMISOS).find((k) => PERMISOS[k] === permisoId);
+    return res.status(403).json({ message: `No tienes el permiso ${nombre}` });
   }
   next();
 };

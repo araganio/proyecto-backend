@@ -5,41 +5,40 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { jwtSecret } = require('../config/dotenv');
-const { Usuario, Rol, Permiso } = require('../models/asociaciones');
+const Usuario = require('../models/usuario.model');
+const RolPermiso = require('../models/rol_permiso.model');
 
 const loginUser = async (email, password) => {
-  // 1. Verificar si el usuario existe.
-  //    unscoped() se usa para que SÍ traiga la contraseña: el modelo la oculta
-  //    por defecto, pero aquí la necesitamos para compararla.
-  const user = await Usuario.unscoped().findOne({
-    where: { email },
-    include: [{
-      model: Rol,
-      as: 'rol',
-      include: [{ model: Permiso, as: 'permisos', through: { attributes: [] } }],
-    }],
-  });
-
+  // Verificar si el usuario existe.
+  // unscoped() hace que SÍ traiga la contraseña: el modelo la oculta por
+  // defecto, pero aquí la necesitamos para compararla.
+  const user = await Usuario.unscoped().findOne({ where: { email } });
   if (!user) {
     throw new Error('Usuario no encontrado');
   }
 
-  // 2. Comparar la contraseña recibida con la contraseña hasheada de la base de datos.
-  //    bcrypt.compare vuelve a hashear la contraseña enviada y compara los resultados.
-  const passwordValida = await bcrypt.compare(password, user.password);
-  if (!passwordValida) {
+  // Verificar si la contraseña es correcta.
+  // bcrypt.compare vuelve a hashear la contraseña recibida y compara resultados.
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
     throw new Error('Contraseña incorrecta');
   }
 
-  // 3. Armar la lista de permisos del rol (crear, visualizar, actualizar, eliminar)
-  const permisos = user.rol ? user.rol.permisos.map((p) => p.nombre) : [];
+  // Consultar los permisos del rol en la tabla roles_permisos
+  const rolePermissions = await RolPermiso.findAll({
+    where: { rol_id: user.rol_id },
+    attributes: ['permiso_id'],
+  });
 
-  // 4. Generar el token. El "payload" son los datos que viajan dentro del token.
-  //    NUNCA se mete la contraseña ahí: el token se puede leer, solo no se puede falsificar.
+  const permisos = rolePermissions.map((rp) => rp.permiso_id);
+
+  // Generar un token JWT.
+  // El "payload" son los datos que viajan dentro del token.
+  // NUNCA se mete la contraseña: el token se puede leer, solo no se puede falsificar.
   const token = jwt.sign(
-    { id: user.id, email: user.email, rol_id: user.rol_id, permisos },
+    { id: user.id, nombre: user.nombre, email: user.email, rol_id: user.rol_id, permisos },
     jwtSecret,
-    { expiresIn: '2h' }, // el token caduca en 2 horas
+    { expiresIn: '1h' },
   );
 
   return {
@@ -48,7 +47,7 @@ const loginUser = async (email, password) => {
       id: user.id,
       nombre: user.nombre,
       email: user.email,
-      rol: user.rol ? user.rol.nombre : null,
+      rol_id: user.rol_id,
       permisos,
     },
   };

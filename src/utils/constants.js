@@ -1,11 +1,19 @@
 // Constantes del proyecto.
 // Evita escribir números sueltos ("números mágicos") por todo el código:
-// en vez de "rol_id: 1" se escribe "rol_id: ROLES.ADMIN", que se entiende solo.
+// en vez de "rol_id: 1" se escribe "ROLES.ADMIN", que se entiende solo.
 
-// Deben coincidir con los ids de la tabla "roles" en la base de datos
+// Deben coincidir con los ids de la tabla "roles"
 const ROLES = {
   ADMIN: 1,
   USER: 2,
 };
 
-module.exports = ROLES;
+// Deben coincidir con los ids de la tabla "permisos"
+const PERMISOS = {
+  CREAR: 1,
+  VISUALIZAR: 2,
+  ACTUALIZAR: 3,
+  ELIMINAR: 4,
+};
+
+module.exports = { ROLES, PERMISOS };

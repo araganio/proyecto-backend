@@ -3,14 +3,15 @@
 const { Router } = require('express');
 const controller = require('../controllers/user.controller');
 const { auth, requierePermiso } = require('../middlewares/auth.middleware');
+const { PERMISOS } = require('../utils/constants');
 
 const router = Router();
 
 router.get('/', controller.getUsers);               // GET    /api/usuarios
 router.get('/:id', controller.getUser);             // GET    /api/usuarios/:id
 
-router.post('/', auth, requierePermiso('crear'), controller.createUser);
-router.put('/:id', auth, requierePermiso('actualizar'), controller.updateUser);
-router.delete('/:id', auth, requierePermiso('eliminar'), controller.deleteUser);
+router.post('/', auth, requierePermiso(PERMISOS.CREAR), controller.createUser);
+router.put('/:id', auth, requierePermiso(PERMISOS.ACTUALIZAR), controller.updateUser);
+router.delete('/:id', auth, requierePermiso(PERMISOS.ELIMINAR), controller.deleteUser);
 
 module.exports = router;

@@ -53,8 +53,10 @@ Devuelve un `token` y los datos del usuario con sus permisos.
 Authorization: Bearer <token>
 ```
 
-El token dura 2 horas. Los permisos salen de la tabla `roles_permisos`:
-el Administrador puede crear/actualizar/eliminar, el Usuario solo visualizar.
+El token dura 1 hora. Los permisos viajan dentro del token como ids de la tabla
+`permisos` (1 crear, 2 visualizar, 3 actualizar, 4 eliminar), y salen de la tabla
+`roles_permisos`: el Administrador tiene los cuatro, el Usuario solo visualizar.
+Los ids están en `src/utils/constants.js` para no escribirlos sueltos en el código.
 
 Respuestas: `401` si falta el token o es inválido, `403` si el rol no tiene ese permiso.
 La contraseña se guarda hasheada (bcrypt) y nunca se devuelve en las respuestas.
@@ -81,7 +83,7 @@ permisos >── roles_permisos ──< roles ──< usuarios >── usuarios_
 ```
 src/
 ├── config/        → dotenv.js (variables de entorno) y db.js (instancia de Sequelize)
-├── utils/         → constants.js (ids de roles)
+├── utils/         → constants.js (ids de roles y permisos)
 ├── controllers/   → reciben la petición y responden
 ├── services/      → lógica de negocio
 ├── models/        → un modelo por tabla + asociaciones.js (relaciones)
