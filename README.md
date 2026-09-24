@@ -46,7 +46,8 @@ El servidor queda en `http://localhost:3000`.
 POST http://localhost:3000/api/auth/login
 Body (raw, JSON): { "email": "juan@ejemplo.com", "password": "admin123" }
 ```
-Devuelve un `token` y los datos del usuario con sus permisos.
+Devuelve `{ "token": "..." }`. Los datos del usuario (id, nombre, email, rol_id
+y permisos) viajan dentro del token: el frontend puede decodificarlo para leerlos.
 
 2. En las rutas protegidas, enviar el token en la cabecera:
 ```

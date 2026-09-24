@@ -10,8 +10,8 @@ const login = async (req, res, next) => {
       return res.status(400).json({ message: 'email y password son obligatorios' });
     }
 
-    const resultado = await AuthService.loginUser(email, password);
-    res.status(200).json(resultado);
+    const token = await AuthService.loginUser(email, password);
+    res.status(200).json({ token });
   } catch (error) {
     // 401 Unauthorized: credenciales incorrectas.
     // Se responde el mismo mensaje en ambos casos para no revelar
