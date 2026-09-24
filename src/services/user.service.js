@@ -14,22 +14,34 @@ const Rol = require('../models/rol.model');
 const incluirRol = [{ model: Rol, as: 'rol', attributes: ['id', 'nombre'] }];
 
 exports.createUser = async (nombre, email, password, rol_id, administrador_id) => {
-  if (!nombre || !email || !password || !rol_id) {
-    throw new Error('nombre, email, password y rol_id son obligatorios');
+  try {
+    if (!nombre || !email || !password || !rol_id) {
+      throw new Error('nombre, email, password y rol_id son obligatorios');
+    }
+
+    // Verificar que el email no esté registrado antes de intentar crearlo
+    const userExists = await Usuario.findOne({ where: { email } });
+    if (userExists) {
+      throw new Error('El usuario ya existe');
+    }
+
+    // Nunca se guarda la contraseña en texto plano: se hashea antes de insertar
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await Usuario.create({
+      nombre,
+      email,
+      password: hashedPassword,
+      rol_id,
+      administrador_id,
+    });
+
+    // Se vuelve a consultar para devolverlo con su rol y SIN la contraseña
+    // (el modelo la oculta en las consultas, pero no en el objeto de create)
+    return Usuario.findByPk(newUser.id, { include: incluirRol });
+  } catch (err) {
+    throw new Error(`Error al crear el usuario: ${err.message}`);
   }
-
-  // Nunca se guarda la contraseña en texto plano: se hashea antes de insertar
-  const passwordHash = await bcrypt.hash(password, 10);
-
-  const user = await Usuario.create({
-    nombre,
-    email,
-    password: passwordHash,
-    rol_id,
-    administrador_id: administrador_id || null,
-  });
-
-  return Usuario.findByPk(user.id, { include: incluirRol });
 };
 
 exports.updateUser = async (id, nombre, email, rol_id, administrador_id, admin_from_token) => {

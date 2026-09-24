@@ -48,14 +48,15 @@ const createUser = async (req, res, next) => {
 
     res.status(201).json(usuario);
   } catch (error) {
-    if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).json({ message: 'El email ya está registrado' });
-    }
-    if (error.name === 'SequelizeForeignKeyConstraintError') {
-      return res.status(400).json({ message: 'rol_id o administrador_id no existen' });
+    // El servicio envuelve el mensaje, por eso se busca el texto dentro de él
+    if (error.message.includes('ya existe')) {
+      return res.status(400).json({ message: 'El usuario ya existe' });
     }
     if (error.message.includes('obligatorios')) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({ message: 'nombre, email, password y rol_id son obligatorios' });
+    }
+    if (error.message.includes('foreign key') || error.message.includes('llave foránea')) {
+      return res.status(400).json({ message: 'rol_id o administrador_id no existen' });
     }
     next(error);
   }
