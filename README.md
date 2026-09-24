@@ -30,15 +30,21 @@ El servidor queda en `http://localhost:3000`.
 
 ## Endpoints
 
-| Método | Ruta                | Descripción              | Requiere        |
-|--------|---------------------|--------------------------|-----------------|
-| GET    | `/`                 | Estado de la API         | —               |
-| POST   | `/api/auth/login`   | Inicia sesión, devuelve token | —          |
-| GET    | `/api/usuarios`     | Lista todos los usuarios | —               |
-| GET    | `/api/usuarios/:id` | Un usuario por id        | —               |
-| POST   | `/api/usuarios`     | Crea un usuario          | token + `crear` |
-| PUT    | `/api/usuarios/:id` | Actualiza un usuario     | token + `actualizar` |
-| DELETE | `/api/usuarios/:id` | Elimina un usuario       | token + `eliminar`   |
+| Método | Ruta                       | Descripción                          | Requiere             |
+|--------|----------------------------|--------------------------------------|----------------------|
+| GET    | `/`                        | Estado de la API                     | —                    |
+| POST   | `/api/auth/login`          | Inicia sesión, devuelve token        | —                    |
+| GET    | `/api/usuarios`            | Usuarios del administrador del token | token + `visualizar` |
+| GET    | `/api/usuarios?email=algo` | Los mismos, filtrados por email      | token + `visualizar` |
+| GET    | `/api/usuarios/rol/:rol_id`| Usuarios de un rol                   | token + `visualizar` |
+| GET    | `/api/usuarios/:id`        | Un usuario por id                    | token + `visualizar` |
+| POST   | `/api/usuarios`            | Crea un usuario                      | token + `crear`      |
+| PUT    | `/api/usuarios/:id`        | Actualiza un usuario                 | token + `actualizar` |
+| DELETE | `/api/usuarios/:id`        | Elimina un usuario                   | token + `eliminar`   |
+
+**Regla de pertenencia:** un administrador solo ve, modifica y elimina los usuarios
+cuyo `administrador_id` es el suyo. Ese id se toma del token (`admin_from_token`),
+no del body, para que nadie pueda suplantarlo. Si intenta tocar un usuario ajeno: `403`.
 
 ### Autenticación (JWT)
 1. Login:
