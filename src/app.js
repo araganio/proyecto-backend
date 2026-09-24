@@ -5,6 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
+const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'API funcionando' });
 });
 
+app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', userRoutes);
 
 // --- 404: ninguna ruta coincidió ---

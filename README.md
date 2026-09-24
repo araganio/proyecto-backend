@@ -30,23 +30,34 @@ El servidor queda en `http://localhost:3000`.
 
 ## Endpoints
 
-| Método | Ruta                | Descripción              | Protegida |
-|--------|---------------------|--------------------------|-----------|
-| GET    | `/`                 | Estado de la API         | No        |
-| GET    | `/api/usuarios`     | Lista todos los usuarios | No        |
-| GET    | `/api/usuarios/:id` | Un usuario por id        | No        |
-| POST   | `/api/usuarios`     | Crea un usuario          | Sí        |
-| PUT    | `/api/usuarios/:id` | Actualiza un usuario     | Sí        |
-| DELETE | `/api/usuarios/:id` | Elimina un usuario       | Sí        |
+| Método | Ruta                | Descripción              | Requiere        |
+|--------|---------------------|--------------------------|-----------------|
+| GET    | `/`                 | Estado de la API         | —               |
+| POST   | `/api/auth/login`   | Inicia sesión, devuelve token | —          |
+| GET    | `/api/usuarios`     | Lista todos los usuarios | —               |
+| GET    | `/api/usuarios/:id` | Un usuario por id        | —               |
+| POST   | `/api/usuarios`     | Crea un usuario          | token + `crear` |
+| PUT    | `/api/usuarios/:id` | Actualiza un usuario     | token + `actualizar` |
+| DELETE | `/api/usuarios/:id` | Elimina un usuario       | token + `eliminar`   |
 
-Las rutas protegidas necesitan la cabecera `x-api-key` con el valor de `API_KEY` del `.env`.
-La contraseña se guarda hasheada (bcrypt) y nunca se devuelve en las respuestas.
-
-Ejemplo con Postman: método `POST`, URL `http://localhost:3000/api/usuarios`,
-Headers → `x-api-key: clave-secreta-123`, Body (raw, JSON):
-```json
-{ "nombre": "Ana", "email": "ana@ejemplo.com", "password": "123456", "rol_id": 2, "administrador_id": 1 }
+### Autenticación (JWT)
+1. Login:
 ```
+POST http://localhost:3000/api/auth/login
+Body (raw, JSON): { "email": "juan@ejemplo.com", "password": "admin123" }
+```
+Devuelve un `token` y los datos del usuario con sus permisos.
+
+2. En las rutas protegidas, enviar el token en la cabecera:
+```
+Authorization: Bearer <token>
+```
+
+El token dura 2 horas. Los permisos salen de la tabla `roles_permisos`:
+el Administrador puede crear/actualizar/eliminar, el Usuario solo visualizar.
+
+Respuestas: `401` si falta el token o es inválido, `403` si el rol no tiene ese permiso.
+La contraseña se guarda hasheada (bcrypt) y nunca se devuelve en las respuestas.
 
 ## Modelo de datos
 ```
@@ -70,6 +81,7 @@ permisos >── roles_permisos ──< roles ──< usuarios >── usuarios_
 ```
 src/
 ├── config/        → dotenv.js (variables de entorno) y db.js (instancia de Sequelize)
+├── utils/         → constants.js (ids de roles)
 ├── controllers/   → reciben la petición y responden
 ├── services/      → lógica de negocio
 ├── models/        → un modelo por tabla + asociaciones.js (relaciones)

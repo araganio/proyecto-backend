@@ -5,6 +5,7 @@ require('dotenv').config();
 module.exports = {
   port: process.env.PORT || 3000,
   apiKey: process.env.API_KEY || '',
+  jwtSecret: process.env.JWT_SECRET || '', // clave para firmar los tokens
   db: {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
