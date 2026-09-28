@@ -41,6 +41,14 @@ El servidor queda en `http://localhost:3000`.
 | POST   | `/api/usuarios`            | Crea un usuario                      | token + `crear`      |
 | PUT    | `/api/usuarios/:id`        | Actualiza un usuario                 | token + `actualizar` |
 | DELETE | `/api/usuarios/:id`        | Elimina un usuario                   | token + `eliminar`   |
+| GET    | `/api/proyectos`           | Proyectos que administra             | token + `visualizar` |
+| GET    | `/api/proyectos/mis-participaciones` | Proyectos en los que participa | token + `visualizar` |
+| GET    | `/api/proyectos/:id`       | Un proyecto con admin y participantes| token + `visualizar` |
+| POST   | `/api/proyectos`           | Crea un proyecto                     | token + `crear`      |
+| PUT    | `/api/proyectos/:id`       | Actualiza un proyecto                | token + `actualizar` |
+| DELETE | `/api/proyectos/:id`       | Elimina un proyecto                  | token + `eliminar`   |
+| POST   | `/api/proyectos/:id/usuarios` | Asigna un usuario al proyecto     | token + `crear`      |
+| DELETE | `/api/proyectos/:id/usuarios/:usuario_id` | Quita un participante | token + `eliminar`   |
 
 **Regla de pertenencia:** un administrador solo ve, modifica y elimina los usuarios
 cuyo `administrador_id` es el suyo. Ese id se toma del token (`admin_from_token`),

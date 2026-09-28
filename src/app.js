@@ -7,6 +7,7 @@ const morgan = require('morgan');
 
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
+const projectRoutes = require('./routes/project.routes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', userRoutes);
+app.use('/api/proyectos', projectRoutes);
 
 // --- 404: ninguna ruta coincidió ---
 app.use((req, res) => {
