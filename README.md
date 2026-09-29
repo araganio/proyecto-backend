@@ -13,9 +13,14 @@ npm install
 ## Base de datos (PostgreSQL)
 1. Instalar PostgreSQL 17 (usuario `postgres`, puerto `5432`) y DBeaver.
 2. En DBeaver, conexión a `postgres` y ejecutar: `CREATE DATABASE bd_proyecto;`
-3. Nueva conexión a `bd_proyecto` y ejecutar el script `database/schema.sql`
-   (crea las 6 tablas: `roles`, `usuarios`, `proyectos`, `usuarios_proyectos`, `permisos`, `roles_permisos`).
-   Ejecutar bloque por bloque, en orden: una tabla no se puede crear antes que la que referencia.
+3. Nueva conexión a `bd_proyecto` y ejecutar los scripts de la carpeta `database/`
+   **en este orden**:
+   - `01_creacion_tablas.sql` — crea las 6 tablas (`roles`, `permisos`, `roles_permisos`,
+     `usuarios`, `proyectos`, `usuarios_proyectos`)
+   - `02_insercion_datos.sql` — inserta los registros de prueba
+   - `03_consultas_pruebas.sql` — consultas de verificación (opcional)
+
+   El orden importa: una tabla no se puede crear antes que la tabla a la que referencia.
 
 ## Configuración
 Copia `.env.example` a `.env` y ajusta los valores (puerto, credenciales de PostgreSQL).
@@ -107,5 +112,7 @@ src/
 ├── app.js         → configuración de Express
 └── server.js      → authenticate() + sync() y enciende el servidor
 database/
-└── schema.sql     → script SQL de creación de tablas
+├── 01_creacion_tablas.sql   → CREATE TABLE de las 6 tablas
+├── 02_insercion_datos.sql   → INSERT de los registros de prueba
+└── 03_consultas_pruebas.sql → consultas de verificación
 ```
