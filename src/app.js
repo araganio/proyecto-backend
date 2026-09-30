@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const projectRoutes = require('./routes/project.routes');
+const { notFound, errorHandler } = require('./middlewares/error.middleware');
 
 const app = express();
 
@@ -26,15 +27,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/usuarios', userRoutes);
 app.use('/api/proyectos', projectRoutes);
 
-// --- 404: ninguna ruta coincidió ---
-app.use((req, res) => {
-  res.status(404).json({ message: `Ruta ${req.method} ${req.originalUrl} no encontrada` });
-});
-
-// --- 500: error inesperado ---
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: 'Error interno del servidor' });
-});
+// --- Manejo de errores (siempre al final, después de las rutas) ---
+app.use(notFound);      // 404: ninguna ruta coincidió
+app.use(errorHandler);  // 500: error inesperado
 
 module.exports = app;
