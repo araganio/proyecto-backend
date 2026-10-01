@@ -46,13 +46,13 @@ El servidor queda en `http://localhost:3000`.
 | POST   | `/api/usuarios`            | Crea un usuario                      | token + `crear`      |
 | PUT    | `/api/usuarios/:id`        | Actualiza un usuario                 | token + `actualizar` |
 | DELETE | `/api/usuarios/:id`        | Elimina un usuario                   | token + `eliminar`   |
-| GET    | `/api/proyectos`           | Proyectos que administra             | token + `visualizar` |
-| GET    | `/api/proyectos/mis-participaciones` | Proyectos en los que participa | token + `visualizar` |
-| GET    | `/api/proyectos/:id`       | Un proyecto con admin y participantes| token + `visualizar` |
+| GET    | `/api/proyectos`           | Si es admin: los que administra. Si es usuario: en los que participa | token + `visualizar` |
+| GET    | `/api/proyectos/todos`     | Todos los proyectos del sistema      | token + `visualizar` |
+| GET    | `/api/proyectos/:id`       | Un proyecto (solo si administra o participa) | token + `visualizar` |
 | POST   | `/api/proyectos`           | Crea un proyecto                     | token + `crear`      |
 | PUT    | `/api/proyectos/:id`       | Actualiza un proyecto                | token + `actualizar` |
 | DELETE | `/api/proyectos/:id`       | Elimina un proyecto                  | token + `eliminar`   |
-| POST   | `/api/proyectos/:id/usuarios` | Asigna un usuario al proyecto     | token + `crear`      |
+| POST   | `/api/proyectos/:id/usuarios` | Asigna **varios** usuarios: `{"usuarios_ids":[3,4]}` | token + `crear` |
 | DELETE | `/api/proyectos/:id/usuarios/:usuario_id` | Quita un participante | token + `eliminar`   |
 
 **Regla de pertenencia:** un administrador solo ve, modifica y elimina los usuarios
